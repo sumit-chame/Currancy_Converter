@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A fast, accurate, and beautiful real-time Currency Converter with 7D/30D/90D historical charts, multi-currency views, favorites, and offline support." />
+  <title>Currency Converter | Live Rates & Charts</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- FontAwesome Icons CDN for crisp UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <!-- Offline Status Banner -->
+  <div id="offline-banner" class="offline-banner hidden" role="alert" aria-live="assertive">
+    <i class="fa-solid fa-wifi-slash"></i> You are currently offline. Showing cached exchange rates.
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <i class="fa-solid fa-coins"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Currency Converter</h1>
+          <div class="live-badge" title="Rates auto-refresh every 60 seconds">
+            <span class="pulse-dot"></span>
+            <span class="live-text">LIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Dark/Light Theme Toggle -->
+        <button id="theme-toggle" class="icon-btn" aria-label="Toggle light and dark mode" title="Toggle theme">
+          <i class="fa-solid fa-moon moon-icon"></i>
+          <i class="fa-solid fa-sun sun-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-content">
+      <!-- Converter Card -->
+      <section class="card converter-card" aria-label="Currency Converter Controls">
+        <form id="converter-form" onsubmit="event.preventDefault();">
+          
+          <!-- Amount Input & Quick Chips -->
+          <div class="form-group amount-group">
+            <label for="amount-input" class="form-label">Amount</label>
+            <div class="input-wrapper">
+              <span class="currency-symbol-badge" id="input-symbol">$</span>
+              <input 
+                type="number" 
+                id="amount-input" 
+                class="amount-input" 
+                value="1" 
+                min="0.0001" 
+                step="any" 
+                placeholder="Enter amount"
+                autocomplete="off"
+                required 
+              />
+            </div>
+            <!-- Quick Preset Amount Buttons -->
+            <div class="quick-amounts" aria-label="Quick Amount Selectors">
+              <button type="button" class="preset-btn" data-value="10">10</button>
+              <button type="button" class="preset-btn" data-value="100">100</button>
+              <button type="button" class="preset-btn" data-value="500">500</button>
+              <button type="button" class="preset-btn" data-value="1000">1,000</button>
+            </div>
+          </div>
+
+          <!-- Selectors Grid (From -> Swap -> To) -->
+          <div class="selectors-row">
+            <!-- FROM Custom Dropdown -->
+            <div class="form-group dropdown-group">
+              <label id="from-label" class="form-label">From</label>
+              <div class="custom-dropdown" id="dropdown-from" data-target="from">
+                <button type="button" class="dropdown-trigger" id="from-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="from-label from-trigger">
+                  <div class="trigger-content">
+                    <img id="from-flag" class="flag-img" src="https://flagcdn.com/w40/us.png" alt="US Flag" onerror="this.src='https://flagcdn.com/w40/un.png';" />
+                    <span id="from-code" class="currency-code-txt">USD</span>
+                    <span id="from-name" class="currency-name-txt">US Dollar</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                </button>
+                <div class="dropdown-menu hidden" id="menu-from" role="listbox" aria-labelledby="from-label">
+                  <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-input" id="search-from" placeholder="Search code, name, or country..." autocomplete="off" />
+                  </div>
+                  <div class="dropdown-list" id="list-from">
+                    <!-- Dynamic Currency Options -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Swap Button -->
+            <div class="swap-wrapper">
+              <button type="button" id="swap-btn" class="swap-btn" aria-label="Swap currencies" title="Swap currencies">
+                <i class="fa-solid fa-arrow-right-arrow-left swap-icon"></i>
+              </button>
+            </div>
+
+            <!-- TO Custom Dropdown -->
+            <div class="form-group dropdown-group">
+              <label id="to-label" class="form-label">To</label>
+              <div class="custom-dropdown" id="dropdown-to" data-target="to">
+                <button type="button" class="dropdown-trigger" id="to-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="to-label to-trigger">
+                  <div class="trigger-content">
+                    <img id="to-flag" class="flag-img" src="https://flagcdn.com/w40/in.png" alt="IN Flag" onerror="this.src='https://flagcdn.com/w40/un.png';" />
+                    <span id="to-code" class="currency-code-txt">INR</span>
+                    <span id="to-name" class="currency-name-txt">Indian Rupee</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                </button>
+                <div class="dropdown-menu hidden" id="menu-to" role="listbox" aria-labelledby="to-label">
+                  <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-input" id="search-to" placeholder="Search code, name, or country..." autocomplete="off" />
+                  </div>
+                  <div class="dropdown-list" id="list-to">
+                    <!-- Dynamic Currency Options -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional Convert Button (Accessible) -->
+          <div class="convert-btn-row">
+            <button type="button" id="convert-btn" class="btn-primary">
+              <i class="fa-solid fa-bolt"></i> Convert Now
+            </button>
+          </div>
+
+        </form>
+
+        <!-- Result Display Section -->
+        <div class="result-section" aria-live="polite">
+          <div class="result-box">
+            <div class="result-meta-top">
+              <span class="result-label">Converted Amount</span>
+              <div class="result-actions">
+                <button type="button" id="fav-btn" class="icon-btn-sm" title="Save to favorites" aria-label="Save pair to favorites">
+                  <i class="fa-regular fa-star" id="fav-icon"></i>
+                </button>
+                <button type="button" id="copy-btn" class="icon-btn-sm" title="Copy result" aria-label="Copy conversion result">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Primary Large Converted Result -->
+            <div class="result-value-wrapper">
+              <h2 id="result-value" class="result-value">0.00</h2>
+              <span id="result-currency" class="result-currency-code">INR</span>
+            </div>
+
+            <!-- Sub Rate Info & Timestamp -->
+            <div class="rate-details">
+              <p id="unit-rate" class="unit-rate">1 USD = -- INR</p>
+              <div class="timestamp-info">
+                <span id="update-time"><i class="fa-regular fa-clock"></i> Updated just now</span>
+                <span class="info-tooltip-wrap">
+                  <i class="fa-solid fa-circle-info info-icon"></i>
+                  <span class="tooltip-text">Mid-market rates updated daily from open data sources (Fawaz Ahmed & ECB). Bank rates may vary.</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Historical Exchange Rate Chart Section -->
+      <section class="card chart-card" aria-label="Historical Rate Chart">
+        <div class="chart-header">
+          <div class="chart-title">
+            <h3><i class="fa-solid fa-chart-line"></i> Exchange Rate History</h3>
+            <span id="chart-pair-label" class="subtitle">USD to INR</span>
+          </div>
+
+          <!-- Time Range Tabs -->
+          <div class="range-tabs" role="tablist" aria-label="Chart Time Ranges">
+            <button type="button" class="tab-btn active" data-range="7D" role="tab" aria-selected="true">7D</button>
+            <button type="button" class="tab-btn" data-range="30D" role="tab" aria-selected="false">30D</button>
+            <button type="button" class="tab-btn" data-range="90D" role="tab" aria-selected="false">90D</button>
+          </div>
+        </div>
+
+        <!-- Chart Container & Loader -->
+        <div class="chart-wrapper">
+          <div id="chart-loader" class="chart-loader hidden">
+            <div class="spinner"></div>
+            <span>Fetching rate history...</span>
+          </div>
+          <canvas id="rateChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Historical Stats Summary -->
+        <div class="chart-stats" id="chart-stats">
+          <div class="stat-item">
+            <span class="stat-label">High</span>
+            <span class="stat-value" id="stat-high">--</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Low</span>
+            <span class="stat-value" id="stat-low">--</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Average</span>
+            <span class="stat-value" id="stat-avg">--</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Change</span>
+            <span class="stat-value" id="stat-change">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid for Multi-Currency & Favorites/Recents -->
+      <div class="grid-two-col">
+        <!-- Multi-Currency Comparison Card -->
+        <section class="card multi-card" aria-label="Multi Currency Overview">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-globe"></i> Convert to Popular Currencies</h3>
+            <span id="multi-base-label" class="subtitle">Base: 1 USD</span>
+          </div>
+          <div class="multi-grid" id="multi-grid">
+            <!-- Dynamic popular currency converted values -->
+          </div>
+        </section>
+
+        <!-- Favorites & Recent Conversions Card -->
+        <section class="card quick-card" aria-label="Favorites and Recent Conversions">
+          <!-- Favorite Currency Pairs -->
+          <div class="quick-section">
+            <h4><i class="fa-solid fa-star gold-star"></i> Favorite Pairs</h4>
+            <div class="chips-container" id="favorites-container">
+              <span class="empty-msg">No favorite pairs saved yet. Click the star icon to save!</span>
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Recent Conversions -->
+          <div class="quick-section">
+            <h4><i class="fa-solid fa-history"></i> Recent Conversions</h4>
+            <div class="chips-container" id="recents-container">
+              <span class="empty-msg">No recent conversions.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="app-footer">
+      <p>
+        Data powered by 
+        <a href="https://github.com/fawazahmed0/currency-api" target="_blank" rel="noopener">Fawaz Ahmed Currency API</a> 
+        &amp; 
+        <a href="https://www.frankfurter.dev/" target="_blank" rel="noopener">Frankfurter API (ECB rates)</a>.
+      </p>
+      <p class="copyright">College Project &bull; Currency Converter App &bull; Built with Vanilla HTML5, CSS3 &amp; JS</p>
+    </footer>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Chart.js v4 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Main Application Script -->
+  <script src="index.js"></script>
+</body>
+</html>
